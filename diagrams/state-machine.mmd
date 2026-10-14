@@ -1,0 +1,27 @@
+﻿stateDiagram-v2
+    [*] --> IDLE: PowerOn + SelfCheckPassed
+    IDLE --> NAVIGATING: ValidRequest + Authorised
+    IDLE --> IDLE: Invalid/unauthorised request / reject + log
+    NAVIGATING --> AVOIDING_OBSTACLE: ObstacleDetected
+    AVOIDING_OBSTACLE --> NAVIGATING: ObstacleCleared + route revalidated
+    NAVIGATING --> DELIVERING: DestinationReached + delivery guards pass
+    DELIVERING --> RETURNING: HandoverConfirmed
+    RETURNING --> IDLE: WarehouseReached + reset checks pass
+    NAVIGATING --> RETURNING: CriticalBattery / only if approved safe-return policy permits
+    NAVIGATING --> SAFE_MODE: CriticalThermal or critical fault
+    AVOIDING_OBSTACLE --> SAFE_MODE: CriticalBattery or CriticalThermal
+    DELIVERING --> SAFE_MODE: CriticalBattery or CriticalThermal
+    RETURNING --> SAFE_MODE: CriticalThermal or critical fault
+    IDLE --> SAFE_MODE: CriticalBattery or CriticalThermal
+    NAVIGATING --> LINK_LOST: HeartbeatExpired
+    AVOIDING_OBSTACLE --> LINK_LOST: HeartbeatExpired
+    DELIVERING --> LINK_LOST: HeartbeatExpired
+    RETURNING --> LINK_LOST: HeartbeatExpired
+    LINK_LOST --> SAFE_MODE: Unsafe/unknown local condition
+    LINK_LOST --> IDLE: LinkRestored + reconciliation + safe reset
+    NAVIGATING --> CROSSING_HOLD: Crossing boundary reached
+    CROSSING_HOLD --> NAVIGATING: Fresh valid clearance + barrier open + no train
+    CROSSING_HOLD --> SAFE_MODE: Sensor disagreement or critical crossing fault
+    SAFE_MODE --> IDLE: Fault cleared + self-check + authorised recovery
+    AVOIDING_OBSTACLE --> SAFE_MODE: Obstacle timeout / unable to clear safely
+    SAFE_MODE --> [*]
